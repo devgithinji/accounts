@@ -7,6 +7,8 @@ MAINTAINER densoft.com
 #Add the application's jar to the container
 COPY target/Accounts-0.0.1-SNAPSHOT.jar Accounts-0.0.1-SNAPSHOT.jar
 
+EXPOSE 5000
+
 #exceute the application
 ENTRYPOINT ["java","-jar","/Accounts-0.0.1-SNAPSHOT.jar"]
 
