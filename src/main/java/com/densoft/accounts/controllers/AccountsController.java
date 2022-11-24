@@ -8,6 +8,7 @@ import com.densoft.accounts.service.client.LoansFeignClient;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -48,10 +49,17 @@ public class AccountsController {
     }
 
     @PostMapping("/myCustomerDetails")
+    @CircuitBreaker(name = "detailsForCustomerSupportApp", fallbackMethod = "myCustomerDetailsFallBack")
     public CustomerDetails customerDetails(@RequestBody Customer customer) {
         Accounts accounts = accountsRepository.findByCustomerId(customer.getCustomerId());
         List<Cards> cardsList = cardsFeignClient.getCardDetails(customer);
         List<Loans> loansList = loansFeignClient.getLoansDetails(customer);
         return new CustomerDetails(accounts, loansList, cardsList);
+    }
+
+    private CustomerDetails myCustomerDetailsFallBack(Customer customer, Throwable throwable) {
+        Accounts accounts = accountsRepository.findByCustomerId(customer.getCustomerId());
+        List<Loans> loansList = loansFeignClient.getLoansDetails(customer);
+        return new CustomerDetails(accounts, loansList);
     }
 }

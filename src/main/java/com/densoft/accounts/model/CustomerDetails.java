@@ -15,4 +15,9 @@ public class CustomerDetails {
     private Accounts accounts;
     private List<Loans> loans;
     private List<Cards> cards;
+
+    public CustomerDetails(Accounts accounts, List<Loans> loans) {
+        this.accounts = accounts;
+        this.loans = loans;
+    }
 }
