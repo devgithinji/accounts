@@ -12,10 +12,7 @@ import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
 import io.github.resilience4j.retry.annotation.Retry;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -51,12 +48,12 @@ public class AccountsController {
     }
 
     @PostMapping("/myCustomerDetails")
-//    @CircuitBreaker(name = "detailsForCustomerSupportApp", fallbackMethod = "myCustomerDetailsFallBack")
+    @CircuitBreaker(name = "detailsForCustomerSupportApp", fallbackMethod = "myCustomerDetailsFallBack")
     @Retry(name = "retryForCustomerDetails", fallbackMethod = "myCustomerDetailsFallBack")
-    public CustomerDetails customerDetails(@RequestBody Customer customer) {
+    public CustomerDetails customerDetails(@RequestHeader("eazybank-correlation-id") String correlationId, @RequestBody Customer customer) {
         Accounts accounts = accountsRepository.findByCustomerId(customer.getCustomerId());
-        List<Cards> cardsList = cardsFeignClient.getCardDetails(customer);
-        List<Loans> loansList = loansFeignClient.getLoansDetails(customer);
+        List<Cards> cardsList = cardsFeignClient.getCardDetails(correlationId, customer);
+        List<Loans> loansList = loansFeignClient.getLoansDetails(correlationId, customer);
         return new CustomerDetails(accounts, loansList, cardsList);
     }
 
@@ -67,15 +64,14 @@ public class AccountsController {
         return "Hello, Welcome to Eazy Bank";
     }
 
-    private String sayHelloFallBack(){
+    private String sayHelloFallBack() {
         return "Hi, Welcome to Eazy Bank";
     }
 
 
-
-    private CustomerDetails myCustomerDetailsFallBack(Customer customer, Throwable throwable) {
+    private CustomerDetails myCustomerDetailsFallBack(@RequestHeader("eazybank-correlation-id") String correlationId, Customer customer, Throwable throwable) {
         Accounts accounts = accountsRepository.findByCustomerId(customer.getCustomerId());
-        List<Loans> loansList = loansFeignClient.getLoansDetails(customer);
+        List<Loans> loansList = loansFeignClient.getLoansDetails(correlationId, customer);
         return new CustomerDetails(accounts, loansList);
     }
 }

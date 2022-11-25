@@ -13,5 +13,5 @@ import java.util.List;
 public interface CardsFeignClient {
 
     @RequestMapping(method = RequestMethod.POST,value = "myCards", consumes = "application/json")
-    List<Cards> getCardDetails(@RequestBody Customer customer);
+    List<Cards> getCardDetails(String correlationId, @RequestBody Customer customer);
 }
