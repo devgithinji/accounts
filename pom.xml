@@ -79,10 +79,22 @@
         </dependency>
 
         <!-- spring rabbit setup-->
-<!--        <dependency>-->
-<!--            <groupId>org.springframework.amqp</groupId>-->
-<!--            <artifactId>spring-rabbit</artifactId>-->
-<!--        </dependency>-->
+        <!--        <dependency>-->
+        <!--            <groupId>org.springframework.amqp</groupId>-->
+        <!--            <artifactId>spring-rabbit</artifactId>-->
+        <!--        </dependency>-->
+
+
+        <!-- micrometer config-->
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-core</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-registry-prometheus</artifactId>
+        </dependency>
 
         <!-- database config-->
 
